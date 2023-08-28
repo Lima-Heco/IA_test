@@ -38,7 +38,8 @@ class	test
 		void	reset(void);
 		void	propagate(double *d);
 		void	learn(double *target);
-		void	autolearn(void);
+		void	starter(double *input, double *target);
+		void	starter2(double *input, double *target);
 		//--set--//
 		void	set_input_data(double *input_data, int len);
 		void	set_input_data(double *input_data, double *target, int len);
@@ -50,6 +51,14 @@ class	test
 		void	put_poidso(void);
 		void	put_poids(void);
 		int	get_error(double *target);
+		int	get_error(void);
 };
+
+int	tester(test *IA);
+double	sigmoid(double x);
+double	relu(double x);
+double	customFunction(double x);
+double	alphareajuste(double alpha, double *erreure);
+void	training(test *IA);
 
 #endif

@@ -72,9 +72,9 @@ int	main(void)
 			std::cin >> alpha;
 			std::cin.clear();*/
 			i = 0;
-			while (IA.get_error(target) == 0)
+			while (i < repeat)
 			{
-				IA.set_input_data(input_data, target, 4);
+				IA.set_input_data(input_data, alpha, target, 4);
 				IA.propagate(input_data);
 				IA.learn(target);
 				IA.propagate(input_data);
@@ -91,12 +91,19 @@ int	main(void)
 				IA.put_output();
 				IA.put_error();
 			}
-		if (commande == "AUTO_LEARN" || commande == "-al")
+
+		if (commande == "-t")
 		{
-			IA.autolearn();
-			IA.put_output();
-			IA.put_error();
+			if (tester(&IA) == 0)
+			{
+				std::cout << "KO" << std::endl;
+			}
+			else
+				std::cout << "OK" << std::endl;
 		}
+
+		if	(commande == "-al")
+			training(&IA);
 		if	(commande == "STATUS" || commande == "-s")
 			IA.put_poids();
 	}

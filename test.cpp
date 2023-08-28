@@ -121,6 +121,12 @@ void	test::set_input_data(double *input_data, double alpha, double *target, int 
 
 void	test::reset(void)
 {
+	double	res_wh[4][4] = {{0.7, 0.9, 0.7, 0.1},
+						{0.9, 0.1, 0.1, 0.9},
+						{9.8, 0.76, 0.7, 9.6},
+						{0.4, 0.3, 0.29, 0.12}};
+	double	res_wo[2][4] = {{0.4, 0.1, 0.7, 0.2},
+						{0.3, 0.54, 0.47, 0.29}};
 	this->pri_alpha = 0.5;
 	for (int i = 0; i < this->pri_outputsize; i++){
 		this->pri_target[i] = 0;
@@ -136,19 +142,16 @@ void	test::reset(void)
 	}
 	for (int i = 0; i < this->pri_hiddensize; i++){
 		for (int j = 0; j < this->pri_hiddensize; j++){
-			this->pri_wh[i][j] = 0.5;
+			this->pri_wh[i][j] = res_wh[j][i];
+			//this->pri_wh[i][j] = 0.5;
 		}
 	}
 	for (int i = 0; i < this->pri_outputsize; i++){
 		for (int j = 0; j < this->pri_hiddensize; j++){
-			this->pri_wo[i][j] = 0.5;
+			this->pri_wo[i][j] = res_wo[i][j];
+			//this->pri_wo[i][j] = 0.5;
 		}
 	}
-	this->pri_wh[1][0] = 1;
-	this->pri_wh[0][2] = 2;
-	this->pri_wh[3][1] = 0.2;
-	this->pri_wh[2][3] = 1.2;
-	
 	return;
 }
 
@@ -184,13 +187,11 @@ void	test::propagate(double *d)
 		for(int j = 0; j < this->pri_hiddensize; j++){
 			this->pri_xo[k] += this->pri_wo[k][j] * this->pri_hidden[j]; 
 		}
-	}
-
+	} 
 	for(int j = 0; j < this->pri_outputsize; j++){
 		this->pri_output[j] = sigmoid(this->pri_xo[j]);
 		//std::cout << "neurone de sortie " << j << " = " << pri_output[j] << std::endl;
 	}
-	std::cout << std::endl;
 }
 
 void	test::learn(double *target)
@@ -200,16 +201,24 @@ void	test::learn(double *target)
 	for (int k = 0; k < this->pri_outputsize; k++)
 	{
 		this->pri_error[k] = target[k] - this->pri_output[k];
+		//this->pri_error[k] = - (target[k] * log(this->pri_output[k]) + (1 - target[k]) * log(1 - this->pri_output[k]));
 		//std::cout << "output ERROR" << k << " = " << this->pri_error[k] << std::endl;
 	}
 
-	this->pri_alpha = alphareajuste(this->pri_alpha, this->pri_error);
+	/*this->put_error();
+
+			std::cout << "entrez l'alpha :";
+			std::cin >> this->pri_alpha;
+			std::cin.clear();*/
+
+			//this->pri_alpha = alphareajuste(this->pri_alpha, this->pri_error);
+			this->pri_alpha = 0.235;
 
 	for (int k = 0; k < this->pri_outputsize; k++){
 		for ( int j = 0; j < this->pri_hiddensize; j++){
 			neg[k] = this->pri_error[k] * -1;
 			this->pri_wog[k][j] = neg[k] * this->pri_output[k] * (1 - this->pri_output[k]) * this->pri_hidden[j];
-			std::cout <<  -this->pri_output[k] << std::endl;
+			//std::cout <<  -this->pri_output[k] << std::endl;
 		}
 	}
 
@@ -233,101 +242,6 @@ void	test::learn(double *target)
 			this->pri_wh[j][i] -= this->pri_alpha * this->pri_whg[j][i];
 		}
 	}
-	std::cout << std::endl;
-	return;
-}
-
-void	test::autolearn(void)
-{
-	this->pri_alpha = 0.5;
-	double	test1_1[] = {0,0,0,0};
-	double	test1_2[] = {1,1,1,1};
-	double	target1[] = {0,0};
-	double	test2_1[] = {1,0,0,0};
-	double	test2_2[] = {0,0,1,0};
-	double	target2[] = {0,1};
-	double	test3_1[] = {1,0,1,0};
-	double	test3_2[] = {0,1,1,0};
-	double	target3[] = {1,0};
-	double	test4_1[] = {1,1,1,0};
-	double	test4_2[] = {0,1,1,1};
-	double	target4[] = {1,1};
-	int	i;
-	int	mult = 1;
-	i = 0;
-
-	this->pri_alpha -= 0.05;
-	while (i < mult)
-	{
-		this->set_input_data(test1_1, target1, 4);
-		this->propagate(test1_1);
-		this->learn(target1);
-		i++;
-	}
-	i = 0;
-	this->pri_alpha -= 0.05;
-	while (i < mult)
-	{
-		this->set_input_data(test1_2, target1, 4);
-		this->propagate(test1_2);
-		this->learn(target1);
-		i++;
-	}
-	i = 0;
-	this->pri_alpha -= 0.05;
-	while (i < mult)
-	{
-		this->set_input_data(test2_1, target2, 4);
-		this->propagate(test2_1);
-		this->learn(target2);
-		i++;
-	}
-	i = 0;
-	this->pri_alpha -= 0.05;
-	while (i < mult)
-	{
-		this->set_input_data(test2_2, target2, 4);
-		this->propagate(test2_2);
-		this->learn(target2);
-		i++;
-	}
-	i = 0;
-	this->pri_alpha -= 0.05;
-	while (i < mult)
-	{
-		this->set_input_data(test3_1, target3, 4);
-		this->propagate(test3_1);
-		this->learn(target3);
-		i++;
-	}
-	i = 0;
-	this->pri_alpha -= 0.05;
-	while (i < mult)
-	{
-		this->set_input_data(test3_2, target3, 4);
-		this->propagate(test3_2);
-		this->learn(target3);
-		i++;
-	}
-	i = 0;
-	this->pri_alpha -= 0.05;
-	while (i < mult)
-	{
-		this->set_input_data(test4_1, target4, 4);
-		this->propagate(test4_1);
-		this->learn(target4);
-		i++;
-	}
-	i = 0;
-	this->pri_alpha -= 0.05;
-	while (i < mult)
-	{
-		this->set_input_data(test4_2, target4, 4);
-		this->propagate(test4_2);
-		this->learn(target4);
-		i++;
-	}
-	i = 0;
 	return;
 }
 
@@ -337,10 +251,10 @@ void	test::put_output(void)
 		std::cout << "neurone de sortie " << j << " = " << pri_output[j] << std::endl;
 	}
 	for(int j = 0; j < this->pri_outputsize; j++){
-		if(pri_output[j] < 0.5)
-			std::cout << "neurone de sortie " << j << " = " << 0 << std::endl;
-		else
+		if(pri_output[j] > 0.5)
 			std::cout << "neurone de sortie " << j << " = " << 1 << std::endl;
+		else
+			std::cout << "neurone de sortie " << j << " = " << 0 << std::endl;
 
 	}
 	return;
@@ -354,7 +268,29 @@ void	test::put_error(void)
 	}
 	return;
 }
-
+int	test::get_error(void)
+{
+	double retun[2];
+	retun[0] = this->pri_output[0];
+	retun[1] = this->pri_output[1];
+	for(int i = 0; i < 2; i++)
+	{
+		if(retun[i] > 0.5)
+		{
+			retun[i] = 1.0;
+		}
+		else
+		{
+			retun[i] = 0.0;
+		}
+	}
+	for(int i = 0; i < 2; i++)
+	{
+		if (retun[i] != this->pri_target[i])
+			return 0;
+	}
+	return 1;
+}
 
 int	test::get_error(double *target)
 {
@@ -410,4 +346,17 @@ void	test::put_poids(void)
 {
 	this->put_poidsh();
 	this->put_poidso();
+}
+
+void	test::starter(double *input, double *target)
+{
+	this->set_input_data(input, target, 4);
+	this->propagate(input);
+	this->learn(target);
+}
+
+void	test::starter2(double *input, double *target)
+{
+	this->set_input_data(input, target, 4);
+	this->propagate(input);
 }
